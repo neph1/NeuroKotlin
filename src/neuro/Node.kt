@@ -26,6 +26,8 @@ class Node {
     var bias: Float = 0.toFloat()
     private val addInputNoise = false
     private var thresholdZero = true
+    private var delta = 0f
+    private var previousDelta = 0f
 
     var nodeType = Activation.LOGISTIC
 
@@ -53,11 +55,21 @@ class Node {
      * \delta_{o1} = -(target_{o1} - out_{o1}) * out_{o1}(1 - out_{o1})
      * @param learningRate
      * @param error
-     * @param regularization
+     * @param l2Lambda
+     * @param momentum
      */
-    fun updateWeights(learningRate: Float, error: Float, regularization: Float) {
+    fun updateWeights(learningRate: Float, error: Float, l2Lambda: Float, momentum: Float) {
         for (i in weights!!.indices) {
-            weights!![i] = weights!![i] + learningRate * (inConnections!![i].output * error) // w+(e*input)
+            if (l2Lambda > 0) {
+                weights!![i] -= l2Lambda * weights!![i]
+            }
+            delta = learningRate * (this!!.inConnections!![i].output * error)
+            weights!![i] += delta // w+(e*input)
+            if (momentum > 0) {
+                weights!![i] += momentum * previousDelta // w+(e*input)
+
+                previousDelta = delta
+            }
         }
     }
 

@@ -22,12 +22,12 @@ object TestAddition {
 
     fun test() {
         val testNet = Util.setupDecisionNet(2, 10, Activation.TANH, 1, Activation.IDENTITY)
-        testNet.learningRate = 0.0003f
-
-        val epochs = 5000
+        testNet.learningRate = 0.0001f
+        testNet.setMomentum(0.3f)
+        val epochs = 25000
         val batchSize = 1
 
-        val trainingData = generateTrainingData(1000, Random(42))
+        val trainingData = generateTrainingData(500, Random(42))
 
         for (k in 0 until epochs) {
             println("Epoch $k")

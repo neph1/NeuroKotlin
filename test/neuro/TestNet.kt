@@ -10,7 +10,7 @@ import neuro.Util
  *
  * @author Rickard
  */
-object TestBackprop {
+object TestNet {
 
     fun test() {
         val n = Util.setupDecisionNet(2, 2, 0, 0, 1)

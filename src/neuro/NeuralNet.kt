@@ -17,8 +17,12 @@ class NeuralNet {
     var hiddenLayers: Array<Array<Node>>? = null
     var output: Array<Node>? = null
     private var softMax = false
-    private var regularizationRate = 0f
     private var strategy: Strategy? = null
+    var learningRate = 0.18f
+    private var l2Lambda = 0f
+    private var learningRateDecay = 0f
+    private var momentum = 0f
+
 
     fun feedForward() {
         for (n in input!!) {
@@ -46,7 +50,7 @@ class NeuralNet {
 
     fun updateOutputWeights(outputError: FloatArray) {
         for (i in output!!.indices) {
-            output!![i].updateWeights(learningRate, outputError[i], regularizationRate)
+            output!![i].updateWeights(learningRate, outputError[i], l2Lambda, momentum)
         }
     }
 
@@ -128,7 +132,7 @@ class NeuralNet {
     fun updateHiddenWeights(layer: Int, error: FloatArray) {
         val length = hiddenLayers!![layer].size
         for (i in 0 until length) {
-            hiddenLayers!![layer][i].updateWeights(learningRate, error[i], regularizationRate)
+            hiddenLayers!![layer][i].updateWeights(learningRate, error[i], l2Lambda, momentum)
         }
     }
 
@@ -213,7 +217,7 @@ class NeuralNet {
     }
 
     fun setRegularization(rate: Float) {
-        this.regularizationRate = rate
+        this.l2Lambda = rate
     }
 
     interface Strategy {
@@ -251,5 +255,32 @@ class NeuralNet {
         return clone
     }
 
-        var learningRate = 0.18f
+
+    /**
+     * https://jamesmccaffrey.wordpress.com/2017/06/29/implementing-neural-network-l2-regularization/
+     * @param l2
+     */
+    fun setL2(l2: Float) {
+        this.l2Lambda = 1f - l2
+    }
+
+    fun setLearningRateDecay(decay: Float) {
+        this.learningRateDecay = learningRateDecay
+    }
+
+    fun onEpochFinished() {
+        if (learningRateDecay > 0f) {
+            learningRate *= 1f - learningRateDecay
+        }
+    }
+
+    /**
+     * https://jamesmccaffrey.wordpress.com/2017/06/06/neural-network-momentum/
+     * @param momentum
+     */
+    fun setMomentum(momentum: Float) {
+        this.momentum = momentum
+    }
+
+
 }
